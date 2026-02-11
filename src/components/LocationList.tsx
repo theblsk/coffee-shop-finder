@@ -23,12 +23,18 @@ export function LocationList({
 
   return (
     <section aria-label="Blank Street locations" className="list-section">
+      <div className="list-header-row">
+        <h2>Nearby stores</h2>
+        <p>{locations.length} available</p>
+      </div>
+
       <ul className="location-list">
-        {locations.map((location) => (
+        {locations.map((location, index) => (
           <LocationCard
             key={location.id}
             location={location}
             isSelected={selectedLocationId === location.id}
+            isNearest={index === 0}
             onSelect={onSelect}
             formatDistance={formatDistance}
             originKind={originKind}

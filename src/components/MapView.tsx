@@ -56,6 +56,11 @@ export function MapView({
 
   return (
     <section className="map-section" aria-label="Map of locations">
+      <div className="map-header-row">
+        <h2>Interactive map</h2>
+        <p>{locations.length} markers</p>
+      </div>
+
       <MapContainer
         center={[mapCenter.lat, mapCenter.lng]}
         zoom={13}
@@ -80,9 +85,12 @@ export function MapView({
             }}
           >
             <Popup>
-              <div>
+              <div className="popup-body">
                 <strong>{location.name}</strong>
                 <p>{location.address}</p>
+                <button type="button" onClick={() => onSelect(location.id)}>
+                  View details
+                </button>
               </div>
             </Popup>
           </Marker>

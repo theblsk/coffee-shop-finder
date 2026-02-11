@@ -28,6 +28,11 @@ export function SearchBar({
 }: SearchBarProps) {
   return (
     <section className="search-panel" aria-label="Search locations">
+      <div className="search-heading-row">
+        <h2>Search locations</h2>
+        <span className="origin-badge">Origin: {originLabel}</span>
+      </div>
+
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -35,32 +40,33 @@ export function SearchBar({
         }}
         className="search-form"
       >
-        <label htmlFor="search-query">Search by address or zip code</label>
+        <label htmlFor="search-query">Address or ZIP code</label>
         <div className="search-actions-row">
           <input
             id="search-query"
             type="text"
             value={searchInput}
-            placeholder="Try: 10001 or Union Square NYC"
+            placeholder="Try: 10001 or Grand Central Terminal"
             onChange={(event) => onSearchInputChange(event.target.value)}
           />
           <button type="submit">Search</button>
         </div>
+        <p className="field-hint">Search auto-runs while typing with a short debounce.</p>
       </form>
 
       <button type="button" onClick={onUseCurrentLocation} className="secondary-button">
         Use current location
       </button>
 
-      <p className="origin-label">Distance origin: {originLabel}</p>
-
-      {isGeocoding ? <LoadingInline label="Looking up that search..." /> : null}
-      {isGeolocating ? <LoadingInline label="Getting your current location..." /> : null}
-      {geocodingNoResults ? (
-        <ErrorInline message="No results found for that search. Try a broader query." />
-      ) : null}
-      {geocodingError ? <ErrorInline message={geocodingError} /> : null}
-      {geolocationError ? <ErrorInline message={geolocationError} /> : null}
+      <div className="status-stack" aria-live="polite">
+        {isGeocoding ? <LoadingInline label="Looking up that search..." /> : null}
+        {isGeolocating ? <LoadingInline label="Getting your current location..." /> : null}
+        {geocodingNoResults ? (
+          <ErrorInline message="No results found for that search. Try a broader query." />
+        ) : null}
+        {geocodingError ? <ErrorInline message={geocodingError} /> : null}
+        {geolocationError ? <ErrorInline message={geolocationError} /> : null}
+      </div>
     </section>
   );
 }

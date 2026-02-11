@@ -24,7 +24,10 @@ export function LocationDetails({
 
   return (
     <aside className="details-panel" aria-live="polite">
-      <h2>{location.name}</h2>
+      <div className="details-header-row">
+        <h2>{location.name}</h2>
+        <span>{formatDistance(location.distanceKm)}</span>
+      </div>
       <p>{location.address}</p>
       <p>{location.hours}</p>
       <p>

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useState } from "react";
 
 import { LocationDetails } from "@/components/LocationDetails";
 import { LocationList } from "@/components/LocationList";
@@ -12,18 +13,63 @@ const MapView = dynamic(() => import("@/components/MapView").then((mod) => mod.M
   loading: () => <p className="status-text">Loading map...</p>,
 });
 
+type MobileViewMode = "list" | "map";
+
 export default function HomePage() {
   const controller = useLocationsController();
+  const [mobileView, setMobileView] = useState<MobileViewMode>("list");
 
   return (
     <main className="page-shell">
       <header className="page-header">
-        <h1>Blank Street Location Finder</h1>
-        <p>Search by address, zip code, or your current location to find the nearest shop.</p>
+        <div className="page-header-copy">
+          <p className="eyebrow">Blank Street Finder</p>
+          <h1>Find your next coffee stop fast</h1>
+          <p>
+            Search by address, zip code, or your current location. Browse nearest stores,
+            compare distances, and pick directly from the map.
+          </p>
+        </div>
+
+        <div className="header-metrics" aria-label="Summary">
+          <article>
+            <p>Total locations</p>
+            <strong>{controller.sortedLocations.length}</strong>
+          </article>
+          <article>
+            <p>Distance mode</p>
+            <strong>km</strong>
+          </article>
+          <article>
+            <p>Current origin</p>
+            <strong>{controller.origin.label}</strong>
+          </article>
+        </div>
       </header>
 
+      <div className="mobile-view-toggle" role="tablist" aria-label="Mobile view switcher">
+        <button
+          type="button"
+          className={mobileView === "list" ? "active" : ""}
+          onClick={() => setMobileView("list")}
+          role="tab"
+          aria-selected={mobileView === "list"}
+        >
+          List & details
+        </button>
+        <button
+          type="button"
+          className={mobileView === "map" ? "active" : ""}
+          onClick={() => setMobileView("map")}
+          role="tab"
+          aria-selected={mobileView === "map"}
+        >
+          Map
+        </button>
+      </div>
+
       <div className="layout-grid">
-        <section className="left-pane">
+        <section className={`left-pane ${mobileView === "map" ? "mobile-hidden" : ""}`}>
           <SearchBar
             searchInput={controller.searchInput}
             onSearchInputChange={controller.setSearchInput}
@@ -52,12 +98,14 @@ export default function HomePage() {
           />
         </section>
 
-        <MapView
-          locations={controller.sortedLocations}
-          selectedLocationId={controller.selectedLocationId}
-          origin={controller.origin}
-          onSelect={controller.selectLocation}
-        />
+        <section className={`right-pane ${mobileView === "list" ? "mobile-hidden" : ""}`}>
+          <MapView
+            locations={controller.sortedLocations}
+            selectedLocationId={controller.selectedLocationId}
+            origin={controller.origin}
+            onSelect={controller.selectLocation}
+          />
+        </section>
       </div>
     </main>
   );
