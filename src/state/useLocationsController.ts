@@ -49,9 +49,11 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
 
   const [isGeolocating, setIsGeolocating] = useState(false);
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
+  // Monotonic request id to ignore stale geocode responses.
   const latestGeocodeRequestId = useRef(0);
 
   const locationsWithDistance = useMemo<LocationWithDistance[]>(() => {
+    // Distances are always derived from the current origin.
     return MOCK_LOCATIONS.map((location: Location) => ({
       ...location,
       distanceKm: haversineKm(origin.coordinates, location.coordinates),
@@ -86,6 +88,8 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
     setIsGeocoding(true);
     setGeocodingError(null);
     setGeocodingNoResults(false);
+
+    // Only the latest request is allowed to update geocoding state.
     const requestId = latestGeocodeRequestId.current + 1;
     latestGeocodeRequestId.current = requestId;
 
@@ -131,6 +135,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
     }, DEBOUNCE_MS);
 
     return () => {
+      // Cancel pending debounce when the user keeps typing.
       window.clearTimeout(timeoutId);
     };
   }, [runGeocode, searchInput]);
@@ -140,6 +145,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
   }, [runGeocode, searchInput]);
 
   const useCurrentLocation = useCallback(() => {
+    // Invalidate in-flight geocode requests before switching origin source.
     latestGeocodeRequestId.current += 1;
     setIsGeocoding(false);
 

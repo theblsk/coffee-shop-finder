@@ -5,6 +5,7 @@ export const NYC_CITY_CENTER = {
   lng: -73.9855,
 };
 
+// Fictional store dataset for a single-city demo experience (NYC).
 export const MOCK_LOCATIONS: Location[] = [
   {
     id: "soho-spring",

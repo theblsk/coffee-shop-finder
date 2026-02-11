@@ -26,6 +26,7 @@ function MapCenterUpdater({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
 
   useEffect(() => {
+    // Keep map viewport synchronized with selected location/origin changes.
     map.setView([lat, lng], map.getZoom(), {
       animate: true,
     });

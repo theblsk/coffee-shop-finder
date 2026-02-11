@@ -8,6 +8,7 @@ export const geocodeQuery = async (query: string): Promise<Coordinate | null> =>
     return null;
   }
 
+  // Route through our API endpoint so UI code does not depend on provider details.
   const params = new URLSearchParams({ query: trimmedQuery });
   const response = await fetch(`/api/geocode?${params.toString()}`, {
     headers: { Accept: "application/json" },

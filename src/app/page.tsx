@@ -8,6 +8,7 @@ import { LocationList } from "@/components/LocationList";
 import { SearchBar } from "@/components/SearchBar";
 import { useLocationsController } from "@/state/useLocationsController";
 
+// Leaflet depends on browser APIs, so load the map only on the client.
 const MapView = dynamic(() => import("@/components/MapView").then((mod) => mod.MapView), {
   ssr: false,
   loading: () => <p className="status-text">Loading map...</p>,

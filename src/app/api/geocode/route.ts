@@ -21,10 +21,12 @@ export async function GET(request: Request) {
     q: query,
     format: "json",
     limit: "1",
+    // Scope to US results for this NYC-focused demo.
     countrycodes: "us",
   });
 
   try {
+    // Server-side proxy request keeps provider headers/config out of the client.
     const response = await fetch(`${NOMINATIM_URL}?${params.toString()}`, {
       headers: {
         Accept: "application/json",
@@ -48,6 +50,7 @@ export async function GET(request: Request) {
       return NextResponse.json(payload, { status: 200 });
     }
 
+    // Nominatim returns coordinates as strings; normalize once at the boundary.
     const lat = Number(data[0].lat);
     const lng = Number(data[0].lon);
 
