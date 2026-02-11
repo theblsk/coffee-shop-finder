@@ -37,7 +37,7 @@ type UseLocationsControllerReturn = {
 };
 
 export const useLocationsController = (): UseLocationsControllerReturn => {
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInputState] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     MOCK_LOCATIONS[0]?.id ?? null,
   );
@@ -51,6 +51,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
   // Monotonic request id to ignore stale geocode responses.
   const latestGeocodeRequestId = useRef(0);
+  const geocodeDebounceTimeoutId = useRef<number | null>(null);
 
   const locationsWithDistance = useMemo<LocationWithDistance[]>(() => {
     // Distances are always derived from the current origin.
@@ -121,33 +122,53 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
     }
   }, []);
 
-  useEffect(() => {
-    const trimmed = searchInput.trim();
-
-    if (trimmed.length < MIN_GEOCODE_QUERY_LENGTH) {
-      setGeocodingNoResults(false);
-      setGeocodingError(null);
-      return;
+  const clearPendingGeocodeDebounce = useCallback(() => {
+    if (geocodeDebounceTimeoutId.current !== null) {
+      window.clearTimeout(geocodeDebounceTimeoutId.current);
+      geocodeDebounceTimeoutId.current = null;
     }
+  }, []);
 
-    const timeoutId = window.setTimeout(() => {
-      void runGeocode(trimmed);
-    }, DEBOUNCE_MS);
+  const setSearchInput = useCallback(
+    (value: string) => {
+      setSearchInputState(value);
+      clearPendingGeocodeDebounce();
 
+      const trimmed = value.trim();
+      if (trimmed.length < MIN_GEOCODE_QUERY_LENGTH) {
+        latestGeocodeRequestId.current += 1;
+        setIsGeocoding(false);
+        setGeocodingNoResults(false);
+        setGeocodingError(null);
+        return;
+      }
+
+      geocodeDebounceTimeoutId.current = window.setTimeout(() => {
+        geocodeDebounceTimeoutId.current = null;
+        void runGeocode(trimmed);
+      }, DEBOUNCE_MS);
+    },
+    [clearPendingGeocodeDebounce, runGeocode],
+  );
+
+  useEffect(() => {
     return () => {
-      // Cancel pending debounce when the user keeps typing.
-      window.clearTimeout(timeoutId);
+      clearPendingGeocodeDebounce();
     };
-  }, [runGeocode, searchInput]);
+  }, [clearPendingGeocodeDebounce]);
 
   const submitSearch = useCallback(() => {
+    clearPendingGeocodeDebounce();
     void runGeocode(searchInput);
-  }, [runGeocode, searchInput]);
+  }, [clearPendingGeocodeDebounce, runGeocode, searchInput]);
 
   const useCurrentLocation = useCallback(() => {
+    clearPendingGeocodeDebounce();
     // Invalidate in-flight geocode requests before switching origin source.
     latestGeocodeRequestId.current += 1;
     setIsGeocoding(false);
+    setGeocodingNoResults(false);
+    setGeocodingError(null);
 
     if (!navigator.geolocation) {
       setGeolocationError("Geolocation is not supported by this browser.");
@@ -179,7 +200,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
-  }, []);
+  }, [clearPendingGeocodeDebounce]);
 
   return {
     searchInput,
