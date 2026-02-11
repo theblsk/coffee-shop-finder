@@ -1,4 +1,4 @@
-import type { Location } from "@/domain/location";
+import type { Location } from "@/types/location";
 
 export const NYC_CITY_CENTER = {
   lat: 40.758,

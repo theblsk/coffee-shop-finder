@@ -1,16 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { MOCK_LOCATIONS, NYC_CITY_CENTER } from "@/data/locations";
 import { formatDistanceKm, haversineKm } from "@/domain/distance";
 import { geocodeQuery } from "@/domain/geocoding";
-import type {
-  Coordinate,
-  Location,
-  LocationWithDistance,
-  Origin,
-} from "@/domain/location";
+import type { Coordinate } from "@/types/coordinate";
+import type { Location, LocationWithDistance } from "@/types/location";
+import type { Origin } from "@/types/origin";
 
 const DEBOUNCE_MS = 400;
 const MIN_GEOCODE_QUERY_LENGTH = 3;
@@ -52,6 +49,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
 
   const [isGeolocating, setIsGeolocating] = useState(false);
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
+  const latestGeocodeRequestId = useRef(0);
 
   const locationsWithDistance = useMemo<LocationWithDistance[]>(() => {
     return MOCK_LOCATIONS.map((location: Location) => ({
@@ -88,9 +86,14 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
     setIsGeocoding(true);
     setGeocodingError(null);
     setGeocodingNoResults(false);
+    const requestId = latestGeocodeRequestId.current + 1;
+    latestGeocodeRequestId.current = requestId;
 
     try {
       const coordinate = await geocodeQuery(query);
+      if (requestId !== latestGeocodeRequestId.current) {
+        return;
+      }
 
       if (!coordinate) {
         setGeocodingNoResults(true);
@@ -103,9 +106,14 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
         kind: "search-result",
       });
     } catch {
+      if (requestId !== latestGeocodeRequestId.current) {
+        return;
+      }
       setGeocodingError("We could not geocode that query. Keeping the current map center.");
     } finally {
-      setIsGeocoding(false);
+      if (requestId === latestGeocodeRequestId.current) {
+        setIsGeocoding(false);
+      }
     }
   }, []);
 
@@ -132,6 +140,9 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
   }, [runGeocode, searchInput]);
 
   const useCurrentLocation = useCallback(() => {
+    latestGeocodeRequestId.current += 1;
+    setIsGeocoding(false);
+
     if (!navigator.geolocation) {
       setGeolocationError("Geolocation is not supported by this browser.");
       return;

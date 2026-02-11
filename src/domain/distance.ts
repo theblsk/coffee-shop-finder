@@ -1,4 +1,4 @@
-import type { Coordinate } from "@/domain/location";
+import type { Coordinate } from "@/types/coordinate";
 
 const EARTH_RADIUS_KM = 6371;
 

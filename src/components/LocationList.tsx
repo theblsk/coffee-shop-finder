@@ -1,4 +1,5 @@
-import type { LocationWithDistance, OriginKind } from "@/domain/location";
+import type { LocationWithDistance } from "@/types/location";
+import type { OriginKind } from "@/types/origin";
 
 import { LocationCard } from "@/components/LocationCard";
 

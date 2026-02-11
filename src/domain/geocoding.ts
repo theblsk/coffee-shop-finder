@@ -1,9 +1,5 @@
-import type { Coordinate } from "@/domain/location";
-
-type GeocodeApiResponse = {
-  coordinate: Coordinate | null;
-  reason?: string;
-};
+import type { Coordinate } from "@/types/coordinate";
+import type { GeocodeApiResponse } from "@/types/geocode-api-response";
 
 export const geocodeQuery = async (query: string): Promise<Coordinate | null> => {
   const trimmedQuery = query.trim();

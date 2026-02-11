@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { GeocodeApiResponse } from "@/types/geocode-api-response";
 
 type NominatimResponseItem = {
   lat: string;
@@ -12,7 +13,8 @@ export async function GET(request: Request) {
   const query = searchParams.get("query")?.trim() ?? "";
 
   if (query.length < 3) {
-    return NextResponse.json({ coordinate: null, reason: "query_too_short" }, { status: 200 });
+    const payload: GeocodeApiResponse = { coordinate: null, reason: "query_too_short" };
+    return NextResponse.json(payload, { status: 200 });
   }
 
   const params = new URLSearchParams({
@@ -32,8 +34,9 @@ export async function GET(request: Request) {
     });
 
     if (!response.ok) {
+      const payload: GeocodeApiResponse = { coordinate: null, reason: "provider_error" };
       return NextResponse.json(
-        { coordinate: null, reason: "provider_error" },
+        payload,
         { status: response.status },
       );
     }
@@ -41,18 +44,22 @@ export async function GET(request: Request) {
     const data = (await response.json()) as NominatimResponseItem[];
 
     if (!data.length) {
-      return NextResponse.json({ coordinate: null }, { status: 200 });
+      const payload: GeocodeApiResponse = { coordinate: null };
+      return NextResponse.json(payload, { status: 200 });
     }
 
     const lat = Number(data[0].lat);
     const lng = Number(data[0].lon);
 
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      return NextResponse.json({ coordinate: null, reason: "invalid_coordinates" }, { status: 502 });
+      const payload: GeocodeApiResponse = { coordinate: null, reason: "invalid_coordinates" };
+      return NextResponse.json(payload, { status: 502 });
     }
 
-    return NextResponse.json({ coordinate: { lat, lng } }, { status: 200 });
+    const payload: GeocodeApiResponse = { coordinate: { lat, lng } };
+    return NextResponse.json(payload, { status: 200 });
   } catch {
-    return NextResponse.json({ coordinate: null, reason: "network_error" }, { status: 502 });
+    const payload: GeocodeApiResponse = { coordinate: null, reason: "network_error" };
+    return NextResponse.json(payload, { status: 502 });
   }
 }

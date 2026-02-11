@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import L from "leaflet";
+import Leaflet from "leaflet";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
-import type { LocationWithDistance, Origin } from "@/domain/location";
+import type { LocationWithDistance } from "@/types/location";
+import type { Origin } from "@/types/origin";
 
-L.Icon.Default.mergeOptions({
+// Configure Leaflet's default marker icon assets for Next.js/public paths.
+Leaflet.Icon.Default.mergeOptions({
   iconRetinaUrl: "/leaflet/marker-icon-2x.png",
   iconUrl: "/leaflet/marker-icon.png",
   shadowUrl: "/leaflet/marker-shadow.png",
@@ -39,7 +41,7 @@ export function MapView({
   onSelect,
   onRequestDetailsView,
 }: MapViewProps) {
-  const markerRefs = useRef<Record<string, L.Marker | null>>({});
+  const markerRefs = useRef<Record<string, Leaflet.Marker | null>>({});
 
   const selectedLocation = useMemo(() => {
     return locations.find((location) => location.id === selectedLocationId) ?? null;
