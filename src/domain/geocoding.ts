@@ -1,5 +1,37 @@
 import type { Coordinate } from "@/types/coordinate";
 import type { GeocodeApiResponse } from "@/types/geocode-api-response";
+import { getObjectProperty } from "@/lib/object";
+
+const isCoordinate = (value: unknown): value is Coordinate => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const lat = getObjectProperty(value, "lat");
+  const lng = getObjectProperty(value, "lng");
+  return typeof lat === "number" && typeof lng === "number";
+};
+
+const parseGeocodeApiResponse = (value: unknown): GeocodeApiResponse => {
+  if (typeof value !== "object" || value === null) {
+    throw new Error("Invalid geocode payload");
+  }
+
+  const coordinate = getObjectProperty(value, "coordinate");
+  if (coordinate !== null && !isCoordinate(coordinate)) {
+    throw new Error("Invalid geocode coordinate payload");
+  }
+
+  const reason = getObjectProperty(value, "reason");
+  if (reason !== undefined && typeof reason !== "string") {
+    throw new Error("Invalid geocode reason payload");
+  }
+
+  return {
+    coordinate,
+    reason,
+  };
+};
 
 export const geocodeQuery = async (query: string): Promise<Coordinate | null> => {
   const trimmedQuery = query.trim();
@@ -18,6 +50,6 @@ export const geocodeQuery = async (query: string): Promise<Coordinate | null> =>
     throw new Error(`Geocoding request failed with status ${response.status}`);
   }
 
-  const data = (await response.json()) as GeocodeApiResponse;
+  const data = parseGeocodeApiResponse(await response.json());
   return data.coordinate;
 };

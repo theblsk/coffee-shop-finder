@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
+import { NOMINATIM_SEARCH_URL } from "@/config/geocoding";
+import { parseNominatimResponse } from "@/domain/nominatim";
 import type { GeocodeApiResponse } from "@/types/geocode-api-response";
-
-type NominatimResponseItem = {
-  lat: string;
-  lon: string;
-};
-
-const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -27,7 +22,7 @@ export async function GET(request: Request) {
 
   try {
     // Server-side proxy request keeps provider headers/config out of the client.
-    const response = await fetch(`${NOMINATIM_URL}?${params.toString()}`, {
+    const response = await fetch(`${NOMINATIM_SEARCH_URL}?${params.toString()}`, {
       headers: {
         Accept: "application/json",
         "User-Agent": "blank-street-location-finder/1.0 (nextjs-app)",
@@ -43,7 +38,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = (await response.json()) as NominatimResponseItem[];
+    const data = parseNominatimResponse(await response.json());
 
     if (!data.length) {
       const payload: GeocodeApiResponse = { coordinate: null };
