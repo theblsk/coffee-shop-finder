@@ -5,6 +5,9 @@ You are working inside an existing Next.js 16 (App Router) + Bun repo.
 ## Goal
 Build a small web app that helps users find their nearest "Blank Street" coffee shop location, browse a list, search by address/zip/current location, and see locations on an interactive map. Prioritize clean architecture, modularity, and maintainability over visual polish.
 
+## Deployment
+- Live app URL: `https://blank-street.netlify.app/`
+
 ## Tech constraints
 - Use TypeScript.
 - Use Next.js App Router.
@@ -22,7 +25,7 @@ User can:
 1. Use current location (browser Geolocation API).
 2. Search by address OR zip code (geocode to lat/lng).
 
-For geocoding, use OpenStreetMap Nominatim (public) via fetch from the client:
+For geocoding, use OpenStreetMap Nominatim (public):
 - Query: `https://nominatim.openstreetmap.org/search?q=<QUERY>&format=json&limit=1`
 - Add a simple debounce (300-500ms) for the input.
 - Handle "no results" gracefully.
@@ -60,9 +63,16 @@ Each location must include:
   - `data/`
     - `locations.ts` (mock locations)
   - `domain/`
-    - `location.ts` (types)
     - `distance.ts` (haversine + formatting)
     - `geocoding.ts` (nominatim client + typing)
+    - `nominatim.ts` (provider response parsing)
+  - `types/`
+    - `coordinate.ts`
+    - `location.ts`
+    - `origin.ts`
+    - `geocode-api-response.ts`
+  - `config/`
+    - `geocoding.ts`
   - `state/`
     - `useLocationsController.ts` (single hook controlling app state/data flow)
   - `components/`

@@ -2,6 +2,10 @@
 
 A small Next.js 16 + Bun app to find nearby fictional Blank Street coffee shops in New York City.
 
+## Live deployment
+
+The app is deployed at [https://blank-street.netlify.app/](https://blank-street.netlify.app/).
+
 ## Run with Bun
 
 ```bash
