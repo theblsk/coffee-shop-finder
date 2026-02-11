@@ -1,6 +1,7 @@
+import { MIN_GEOCODE_QUERY_LENGTH } from "@/config/geocoding";
+import { getObjectProperty } from "@/lib/object";
 import type { Coordinate } from "@/types/coordinate";
 import type { GeocodeApiResponse } from "@/types/geocode-api-response";
-import { getObjectProperty } from "@/lib/object";
 
 const isCoordinate = (value: unknown): value is Coordinate => {
   if (typeof value !== "object" || value === null) {
@@ -36,7 +37,7 @@ const parseGeocodeApiResponse = (value: unknown): GeocodeApiResponse => {
 export const geocodeQuery = async (query: string): Promise<Coordinate | null> => {
   const trimmedQuery = query.trim();
 
-  if (trimmedQuery.length < 3) {
+  if (trimmedQuery.length < MIN_GEOCODE_QUERY_LENGTH) {
     return null;
   }
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { MIN_GEOCODE_QUERY_LENGTH } from "@/config/geocoding";
 import { MOCK_LOCATIONS, NYC_CITY_CENTER } from "@/data/locations";
 import { formatDistanceKm, haversineKm } from "@/domain/distance";
 import { geocodeQuery } from "@/domain/geocoding";
@@ -10,7 +11,6 @@ import type { Location, LocationWithDistance } from "@/types/location";
 import type { Origin } from "@/types/origin";
 
 const DEBOUNCE_MS = 400;
-const MIN_GEOCODE_QUERY_LENGTH = 3;
 
 const CITY_CENTER_ORIGIN: Origin = {
   coordinates: NYC_CITY_CENTER,
