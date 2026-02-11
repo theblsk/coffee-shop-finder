@@ -51,7 +51,9 @@ export function SearchBar({
           />
           <button type="submit">Search</button>
         </div>
-        <p className="field-hint">Search auto-runs while typing with a short debounce.</p>
+        <p className="field-hint">
+          Search auto-runs while typing with a short debounce (minimum 3 characters).
+        </p>
       </form>
 
       <button type="button" onClick={onUseCurrentLocation} className="secondary-button">

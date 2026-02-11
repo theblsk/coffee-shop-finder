@@ -17,6 +17,7 @@ type MapViewProps = {
   selectedLocationId: string | null;
   origin: Origin;
   onSelect: (locationId: string) => void;
+  onRequestDetailsView?: () => void;
 };
 
 function MapCenterUpdater({ lat, lng }: { lat: number; lng: number }) {
@@ -36,6 +37,7 @@ export function MapView({
   selectedLocationId,
   origin,
   onSelect,
+  onRequestDetailsView,
 }: MapViewProps) {
   const markerRefs = useRef<Record<string, L.Marker | null>>({});
 
@@ -88,7 +90,13 @@ export function MapView({
               <div className="popup-body">
                 <strong>{location.name}</strong>
                 <p>{location.address}</p>
-                <button type="button" onClick={() => onSelect(location.id)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelect(location.id);
+                    onRequestDetailsView?.();
+                  }}
+                >
                   View details
                 </button>
               </div>

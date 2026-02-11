@@ -13,6 +13,7 @@ import type {
 } from "@/domain/location";
 
 const DEBOUNCE_MS = 400;
+const MIN_GEOCODE_QUERY_LENGTH = 3;
 
 const CITY_CENTER_ORIGIN: Origin = {
   coordinates: NYC_CITY_CENTER,
@@ -78,7 +79,7 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
   const runGeocode = useCallback(async (rawQuery: string) => {
     const query = rawQuery.trim();
 
-    if (!query) {
+    if (query.length < MIN_GEOCODE_QUERY_LENGTH) {
       setGeocodingNoResults(false);
       setGeocodingError(null);
       return;
@@ -111,7 +112,9 @@ export const useLocationsController = (): UseLocationsControllerReturn => {
   useEffect(() => {
     const trimmed = searchInput.trim();
 
-    if (!trimmed) {
+    if (trimmed.length < MIN_GEOCODE_QUERY_LENGTH) {
+      setGeocodingNoResults(false);
+      setGeocodingError(null);
       return;
     }
 

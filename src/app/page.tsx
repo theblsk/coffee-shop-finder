@@ -18,6 +18,12 @@ type MobileViewMode = "list" | "map";
 export default function HomePage() {
   const controller = useLocationsController();
   const [mobileView, setMobileView] = useState<MobileViewMode>("list");
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  const handleLocationSelect = (locationId: string) => {
+    controller.selectLocation(locationId);
+    setIsDetailsOpen(true);
+  };
 
   return (
     <main className="page-shell">
@@ -86,13 +92,7 @@ export default function HomePage() {
           <LocationList
             locations={controller.sortedLocations}
             selectedLocationId={controller.selectedLocationId}
-            onSelect={controller.selectLocation}
-            formatDistance={controller.formatDistance}
-            originKind={controller.origin.kind}
-          />
-
-          <LocationDetails
-            location={controller.selectedLocation}
+            onSelect={handleLocationSelect}
             formatDistance={controller.formatDistance}
             originKind={controller.origin.kind}
           />
@@ -104,9 +104,18 @@ export default function HomePage() {
             selectedLocationId={controller.selectedLocationId}
             origin={controller.origin}
             onSelect={controller.selectLocation}
+            onRequestDetailsView={() => setIsDetailsOpen(true)}
           />
         </section>
       </div>
+
+      <LocationDetails
+        isOpen={isDetailsOpen}
+        location={controller.selectedLocation}
+        formatDistance={controller.formatDistance}
+        originKind={controller.origin.kind}
+        onClose={() => setIsDetailsOpen(false)}
+      />
     </main>
   );
 }
